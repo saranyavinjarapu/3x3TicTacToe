@@ -1,9 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Square from "./Square";
-
-const rowStyle = {
-  display: "flex",
-};
+import calculateWinner from "./helpers";
 
 const containerStyle = {
   display: "flex",
@@ -38,31 +35,71 @@ const boardStyle = {
   border: "3px #eee solid",
 };
 
+const gameGrid = {
+  display: "grid",
+  gridGap: "1px",
+  gridTemplateColumns: "repeat(3,1fr)",
+  marginTop: "10px",
+  marginBottom: "10px",
+  justifyContent: "center",
+};
+
 const Board = () => {
+  const [currentPlayer, setCurrentPlayer] = useState(
+    Math.round(Math.random() * 1) === 1 ? "X" : "O"
+  );
+
+  const [gameSquares, setGameSquares] = useState(Array(9).fill(null));
+  const [winner, setWinner] = useState(null);
+
+  const handleGameSquareInput = (index) => {
+    const updatedGameSquares = gameSquares.map((val, i) => {
+      if (i === index) {
+        return currentPlayer;
+      }
+      return val;
+    });
+    setGameSquares(updatedGameSquares);
+    setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+  };
+
+  const resetGame = () => {
+    setGameSquares(Array(9).fill(null));
+    setWinner(null);
+    setCurrentPlayer(Math.round(Math.random() * 1) === 1 ? "X" : "O");
+  };
+
+  useEffect(() => {
+    const winnerValue = calculateWinner(gameSquares);
+    if (winnerValue) {
+      setWinner(winnerValue);
+      setCurrentPlayer("");
+    }
+  }, [gameSquares, setWinner]);
+
   return (
     <div style={containerStyle} className="gameBoard">
       <div id="statusArea" className="status" style={instructionsStyle}>
-        Next player: <span>X</span>
+        Next player: <span>{currentPlayer}</span>
       </div>
       <div id="winnerArea" className="winner" style={instructionsStyle}>
-        Winner: <span>None</span>
+        Winner: <span>{winner}</span>
       </div>
-      <button style={buttonStyle}>Reset</button>
+      <button style={buttonStyle} onClick={resetGame}>
+        Reset
+      </button>
       <div style={boardStyle}>
-        <div className="board-row" style={rowStyle}>
-          <Square />
-          <Square />
-          <Square />
-        </div>
-        <div className="board-row" style={rowStyle}>
-          <Square />
-          <Square />
-          <Square />
-        </div>
-        <div className="board-row" style={rowStyle}>
-          <Square />
-          <Square />
-          <Square />
+        <div style={gameGrid}>
+          {Array(9)
+            .fill(null)
+            .map((_, i) => (
+              <Square
+                winner={winner}
+                key={i}
+                onClick={() => handleGameSquareInput(i)}
+                value={gameSquares[i]}
+              />
+            ))}
         </div>
       </div>
     </div>

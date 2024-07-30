@@ -12,8 +12,18 @@ const squareStyle = {
   color: "white",
 };
 
-const Square = () => {
-  return <button className="square" style={squareStyle}></button>;
+const Square = (props) => {
+  const { value, winner, onClick } = props;
+  return (
+    <button
+      type="button"
+      style={squareStyle}
+      onClick={value ? undefined : onClick}
+      disabled={value ? true : Boolean(winner)}
+    >
+      {value && value}
+    </button>
+  );
 };
 
 export default Square;
